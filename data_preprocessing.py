@@ -16,6 +16,46 @@ import csv
 #read file
 data = np.genfromtxt ('1216_ecg_data.csv', delimiter=',', dtype=np.float64)
 
+#test for one row
+i = 0
+current_data = data[i, :data.shape[1] - 1]
+        
+label = int(data[i, -1])
+peaks, _ = find_peaks(current_data, height=1.8)
+
+#find peak by average mid 1/3 difference of the sorted duration
+duration = []
+for j in range(len(peaks) - 1):
+    duration.append(peaks[j + 1] - peaks[j])
+
+sort_duration = np.sort(duration)
+#print(sort_duration)
+period = int(np.mean(sort_duration[len(peaks)//3 : 2 * len(peaks) // 3]))
+
+#find the offset of the signal
+
+good_peaks = []
+threshold = 10
+for j in range(len(peaks) - 2):
+    if np.abs((peaks[j + 1] - peaks[j]) - period) < threshold and np.abs((peaks[j + 2] - peaks[j + 1]) - period) < threshold:
+        good_peaks.append(peaks[j + 1])
+
+print(good_peaks)
+
+ecg = []
+
+for j in range(len(good_peaks)):
+    if good_peaks[j] - period//2 < 0 or good_peaks[j] + period //2 >= data.shape[1]:
+        continue
+
+    temp = []
+    for k in current_data[good_peaks[j] - period//2: good_peaks[j] + period//2]:
+        temp.append(k)
+    ecg.append(temp)
+
+for i in range(len(ecg)):
+    plt.plot(ecg[i])
+
 filename = "data_preprocessing.csv"
 with open(filename, 'w') as csvfile:
     csvwriter = csv.writer(csvfile) 
@@ -35,31 +75,29 @@ with open(filename, 'w') as csvfile:
         period = int(np.mean(sort_duration[len(peaks)//3 : 2 * len(peaks) // 3]))
 
         #find the offset of the signal
-        left = 0
-        right = 0
-        for j in range(len(peaks) - 1):
-            if np.abs((peaks[j + 1] - peaks[j]) - period) < 2:
-                left = peaks[j] 
-                right = peaks[j + 1]
-                break
+        #find the offset of the signal
 
-
-        midpoint = (left + right) // 2
-        offset =  midpoint  - (midpoint // period) * period
+        good_peaks = []
+        threshold = 10
+        for j in range(len(peaks) - 2):
+            if np.abs((peaks[j + 1] - peaks[j]) - period) < threshold and np.abs((peaks[j + 2] - peaks[j + 1]) - period) < threshold:
+                good_peaks.append(peaks[j + 1])
 
         ecg = []
 
+        for j in range(len(good_peaks)):
+            if good_peaks[j] - period//2 < 0 or good_peaks[j] + period //2 >= data.shape[1]:
+                continue
 
-        period_2_perform = int((len(current_data) - offset) // period)
-
-        for j in range(period_2_perform - 1):
             temp = []
-            for k in current_data[j * period + offset : (j + 1) * period + offset]:
+            for k in current_data[good_peaks[j] - period//2: good_peaks[j] + period//2]:
                 temp.append(k)
             ecg.append(temp)
 
         for j in range(len(ecg)):
-            for k in range(186 - period):
+            len_ecgj = len(ecg[j])
+            for k in range(186 - len_ecgj):
                 ecg[j] = np.append(ecg[j], [0])
             ecg[j] = np.append(ecg[j], [label])
             csvwriter.writerow(ecg[j])
+
