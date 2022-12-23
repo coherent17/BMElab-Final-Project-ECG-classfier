@@ -1,8 +1,5 @@
 # BMElab-Final-Project-ECG-classfier
 
-## Usage of readData.py
-# BMElab final project: ECG classfier
-
 ## raspberry pi pin connection:
 https://www.hackster.io/talofer99/analog-input-on-raspberry-pi-with-mcp3008-e64e43
 https://learn.adafruit.com/reading-a-analog-in-and-controlling-audio-volume-with-the-raspberry-pi?view=all
