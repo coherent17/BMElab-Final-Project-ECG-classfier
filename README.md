@@ -18,5 +18,5 @@ $ python3 readData.py
 Dataset encoding:
 
 *   0: Coherent
-*   1: David
+*   1: Daniel
 *   2: Maria
