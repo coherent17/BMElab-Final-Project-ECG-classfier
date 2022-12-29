@@ -20,7 +20,9 @@ from sklearn.utils import class_weight
 import warnings
 warnings.filterwarnings('ignore')
 
-data_df=pd.read_csv('preprocessingData.csv',header=None)
+from google.colab import drive
+drive.mount('/content/drive')
+data_df=pd.read_csv('drive/MyDrive/preprocessingData.csv',header=None)
 print(data_df.shape)
 
 equilibre = data_df[187].value_counts()
@@ -163,9 +165,65 @@ plot_confusion_matrix(cnf_matrix, classes=['Maria','Coherent','Daniel'],normaliz
                       title='Confusion matrix, with normalization')
 plt.show()
 
-data_test = data_df.iloc[1247,:186].values
-data_test = data_test.reshape(1, 186, 1)
-ret = model.predict(data_test)
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+import csv
+#read file
+demo_data = np.genfromtxt ('drive/MyDrive/ecg_signal.csv', delimiter=',', dtype=np.float64)
+demo_data = demo_data.reshape(1, len(demo_data))
 
-print(np.argmax(ret))
+filename = "demo.csv"
+with open(filename, 'w') as csvfile:
+    csvwriter = csv.writer(csvfile) 
+    for i in range(demo_data.shape[0]):
+        current_data = demo_data[i, :demo_data.shape[1] - 1]
+        
+        label = int(demo_data[i, -1])
+        peaks, _ = find_peaks(current_data, height=1.8)
+
+        #find peak by average mid 1/3 difference of the sorted duration
+        duration = []
+        for j in range(len(peaks) - 1):
+            duration.append(peaks[j + 1] - peaks[j])
+
+        sort_duration = np.sort(duration)
+        #print(sort_duration)
+        period = int(np.mean(sort_duration[len(peaks)//3 : 2 * len(peaks) // 3]))
+
+        #find the offset of the signal
+        #find the offset of the signal
+
+        good_peaks = []
+        threshold = 10
+        for j in range(len(peaks) - 2):
+            if np.abs((peaks[j + 1] - peaks[j]) - period) < threshold and np.abs((peaks[j + 2] - peaks[j + 1]) - period) < threshold:
+                good_peaks.append(peaks[j + 1])
+
+        ecg = []
+
+        for j in range(len(good_peaks)):
+            if good_peaks[j] - period//2 < 0 or good_peaks[j] + period //2 >= demo_data.shape[1]:
+                continue
+
+            temp = []
+            for k in current_data[good_peaks[j] - period//2: good_peaks[j] + period//2]:
+                temp.append(k)
+            ecg.append(temp)
+
+        for j in range(len(ecg)):
+            len_ecgj = len(ecg[j])
+            for k in range(187 - len_ecgj):
+                ecg[j] = np.append(ecg[j], [0])
+            ecg[j] = np.append(ecg[j], [label])
+            csvwriter.writerow(ecg[j])
+
+demo=pd.read_csv('demo.csv',header=None)
+
+for i in range(len(demo)):
+  data_test = demo.iloc[i,:186].values
+  data_test = data_test.reshape(1, 186, 1)
+  ret = model.predict(data_test)
+  print(np.argmax(ret))
 
