@@ -9,14 +9,18 @@ https://learn.adafruit.com/reading-a-analog-in-and-controlling-audio-volume-with
 https://atceiling.blogspot.com/2014/04/raspberry-pi-mcp3008.html
 
 
-## Usage of readData:
-
-read 30 sec of ecg signal
-$ python3 readData.py
-
 ## Dataset:
 Dataset encoding:
 
 *   0: Coherent
 *   1: Daniel
 *   2: Maria
+
+## How to use this project:
+
+*   1. Create your own google drive api
+*   2. git clone https://github.com/coherent17/BMElab-Final-Project-ECG-classfier
+*   3. cd google-drive-api-tutorial-project
+*   4. read ecg signal $ python3 readData.py
+*   5. using training code in Model folder to preprocessing the data and train the model
+*   6. model return the log file and use PredictResult.py to show the final result with tkinter GUI
