@@ -20,7 +20,9 @@ Dataset encoding:
 
 *   1. Create your own google drive api
 *   2. git clone https://github.com/coherent17/BMElab-Final-Project-ECG-classfier
-*   3. cd google-drive-api-tutorial-project
+*   3. cd BMElab-Final-Project-ECG-classfier
 *   4. read ecg signal $ python3 readData.py
-*   5. using training code in Model folder to preprocessing the data and train the model
-*   6. model return the log file and use PredictResult.py to show the final result with tkinter GUI
+*   5. upload ecg.csv to google cloud
+*   6. using model in Model folder to predict the result from ecg_signal.csv
+*   7. The model will output the predict result and confidence in result.csv file download it and put it in this folder
+*   8. run PredictResult.py to output the result (LED shine and messagebox shown)
